@@ -21,9 +21,9 @@ test.describe("adding items", ()=>{
 
         await expect(page.getByText('Task 2')).toBeVisible();
     });
-    //chceks whiat if try to add an item without Title
 
-    test("Adding Empty Task", async({ page }) => {
+    //chceks what if try to add an item without Title
+    test("Adding Empty Task without title and description", async({ page }) => {
 
         let isAlertPop = false;
         let alertMessage='';
@@ -42,5 +42,35 @@ test.describe("adding items", ()=>{
         expect(isAlertPop).toBe(true);
         expect(alertMessage).toBe('Title Cannot be Empty');
     });
+    //chceks what if try to add an item with only description 
+    test("Adding Empty Task only with description", async ({ page }) => {
+
+        let isAlertPop = false;
+        let alertMessage = '';
+
+        page.once('dialog', async (dialog) => {
+            isAlertPop = true;
+            alertMessage = dialog.message();
+
+            await dialog.accept();
+        });
+
+        await page.locator('#add-task-button').click();
+        await page.locator('#input-title').fill('');
+        await page.locator('#input-description').fill('the title of the task 1 is empty')
+        await page.locator('#add-button').click();
+
+        expect(isAlertPop).toBe(true);
+        expect(alertMessage).toBe('Title Cannot be Empty');
+    });
+
+    //check if click on cancel button
+    test('Click on Cancel button to prevent creating a task', async ({page}) => {
+        await page.locator('#add-task-button').click();
+        await page.locator('#input-title').fill('Task 1');
+        await page.getByText('CANCEL').click();
+
+        expect(page.getByText('Task 1')).not.toBeVisible();
+    })
 
 })
